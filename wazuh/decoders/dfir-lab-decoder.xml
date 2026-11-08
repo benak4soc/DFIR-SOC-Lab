@@ -1,0 +1,14 @@
+<!--
+  Copy this file to /var/ossec/etc/decoders/ on the Wazuh manager.
+  Lab lines look like:
+  dfir-lab: action=login result=failure user=alice srcip=203.0.113.10 country=DE service=ssh sha256=- path=-
+-->
+<decoder name="dfir-lab">
+  <prematch>^dfir-lab: </prematch>
+</decoder>
+
+<decoder name="dfir-lab-fields">
+  <parent>dfir-lab</parent>
+  <regex>action=(\S+) result=(\S+) user=(\S+) srcip=(\S+) country=(\S+) service=(\S+) sha256=(\S+) path=(\S+)</regex>
+  <order>dfir.action,dfir.result,srcuser,srcip,dfir.country,dfir.service,dfir.sha256,dfir.path</order>
+</decoder>

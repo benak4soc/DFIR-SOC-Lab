@@ -1,0 +1,119 @@
+<!--
+  Lab detections for the DFIR SOC project.
+  Copy this file to /var/ossec/etc/rules/ on the Wazuh manager.
+  Rule IDs match src/dfir_soc/detect.py.
+-->
+<group name="dfir_lab,">
+
+  <rule id="100010" level="3">
+    <decoded_as>dfir-lab-fields</decoded_as>
+    <field name="dfir.action">^login$</field>
+    <field name="dfir.result">^failure$</field>
+    <field name="dfir.service">ssh|rdp|windows</field>
+    <description>DFIR lab interactive login failure.</description>
+    <group>authentication_failed,</group>
+  </rule>
+
+  <rule id="100011" level="3">
+    <decoded_as>dfir-lab-fields</decoded_as>
+    <field name="dfir.action">^login$</field>
+    <field name="dfir.result">^success$</field>
+    <field name="dfir.service">ssh|rdp|windows</field>
+    <description>DFIR lab interactive login success.</description>
+    <group>authentication_success,</group>
+  </rule>
+
+  <rule id="100020" level="3">
+    <decoded_as>dfir-lab-fields</decoded_as>
+    <field name="dfir.action">^login$</field>
+    <field name="dfir.result">^failure$</field>
+    <field name="dfir.service">^vpn$</field>
+    <description>DFIR lab VPN login failure.</description>
+    <group>authentication_failed,vpn,</group>
+  </rule>
+
+  <rule id="100021" level="3">
+    <decoded_as>dfir-lab-fields</decoded_as>
+    <field name="dfir.action">^login$</field>
+    <field name="dfir.result">^success$</field>
+    <field name="dfir.service">^vpn$</field>
+    <description>DFIR lab VPN login success.</description>
+    <group>authentication_success,vpn,</group>
+  </rule>
+
+  <!-- Two successes, same user, different countries, within one hour.
+       Shuffle then checks whether the implied speed is above 800 km/h. -->
+  <rule id="100101" level="12" frequency="2" timeframe="3600">
+    <if_matched_sid>100011</if_matched_sid>
+    <same_field>srcuser</same_field>
+    <not_same_field>dfir.country</not_same_field>
+    <description>Impossible travel login detected</description>
+    <group>impossible_travel,</group>
+  </rule>
+
+  <!-- frequency counts earlier matches of the failure rule. Five failures, then this success. -->
+  <rule id="100202" level="12" frequency="5" timeframe="300">
+    <if_matched_sid>100010</if_matched_sid>
+    <if_sid>100011</if_sid>
+    <same_field>srcuser</same_field>
+    <description>Multiple login failures followed by a success</description>
+    <group>authentication_failures,</group>
+  </rule>
+
+  <rule id="100301" level="12" frequency="3" timeframe="300">
+    <if_matched_sid>100010</if_matched_sid>
+    <if_sid>100011</if_sid>
+    <same_field>srcuser</same_field>
+    <not_same_field>srcip</not_same_field>
+    <description>Failures from one IP followed by success from another</description>
+    <group>authentication_failures,</group>
+  </rule>
+
+  <rule id="100401" level="12" frequency="2" timeframe="600">
+    <if_matched_sid>100020</if_matched_sid>
+    <if_sid>100021</if_sid>
+    <same_field>srcuser</same_field>
+    <not_same_field>srcip</not_same_field>
+    <description>Failed VPN login followed by success from a new source</description>
+    <group>vpn,</group>
+  </rule>
+
+  <rule id="100501" level="12" frequency="2" timeframe="600">
+    <if_matched_sid>100010</if_matched_sid>
+    <if_sid>100011</if_sid>
+    <same_field>srcuser</same_field>
+    <not_same_field>dfir.country</not_same_field>
+    <description>Failed login followed by success from an unusual country</description>
+    <group>authentication_failures,</group>
+  </rule>
+
+  <rule id="100600" level="3">
+    <decoded_as>dfir-lab-fields</decoded_as>
+    <field name="dfir.action">^file$</field>
+    <field name="dfir.sha256">^275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f$</field>
+    <description>DFIR lab saw the EICAR test-file hash.</description>
+    <group>eicar,</group>
+  </rule>
+
+  <rule id="100601" level="12">
+    <if_sid>100600</if_sid>
+    <field name="dfir.result">^execute$</field>
+    <description>Suspicious file executed: EICAR test file</description>
+    <group>eicar,</group>
+  </rule>
+
+  <rule id="100701" level="10">
+    <if_sid>100600</if_sid>
+    <field name="dfir.result">^create$</field>
+    <description>EICAR test file written to disk</description>
+    <group>eicar,</group>
+  </rule>
+
+  <rule id="100801" level="13">
+    <if_sid>100600</if_sid>
+    <field name="dfir.result">^persist$</field>
+    <description>EICAR test file staged in a persistence location</description>
+    <group>eicar,</group>
+  </rule>
+
+</group>

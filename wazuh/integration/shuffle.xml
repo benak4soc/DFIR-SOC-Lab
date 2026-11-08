@@ -1,0 +1,10 @@
+<ossec_config>
+  <!-- Forward only the lab use-case rules. Replace the hook with the
+       webhook URL shown on the Shuffle trigger, then restart the manager. -->
+  <integration>
+    <name>shuffle</name>
+    <hook_url>http://shuffle-frontend:3001/api/v1/hooks/webhook_REPLACE_ME</hook_url>
+    <rule_id>100101,100202,100301,100401,100501,100601,100701,100801</rule_id>
+    <alert_format>json</alert_format>
+  </integration>
+</ossec_config>

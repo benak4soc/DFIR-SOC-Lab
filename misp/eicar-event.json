@@ -1,0 +1,18 @@
+{
+  "info": "Import this as a MISP event after MISP is up. The hash is the EICAR antivirus test file, not a malware sample.",
+  "Event": {
+    "info": "DFIR lab enrichment - EICAR test file",
+    "distribution": "0",
+    "threat_level_id": "4",
+    "analysis": "2",
+    "Attribute": [
+      {
+        "type": "sha256",
+        "category": "Payload delivery",
+        "value": "275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f",
+        "comment": "EICAR antivirus test file",
+        "to_ids": false
+      }
+    ]
+  }
+}

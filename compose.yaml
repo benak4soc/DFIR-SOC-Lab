@@ -1,0 +1,19 @@
+services:
+  playbook:
+    image: python:3.12-slim
+    working_dir: /app
+    environment:
+      PYTHONPATH: /app/src
+      IRIS_URL: ${IRIS_URL:-}
+      IRIS_API_KEY: ${IRIS_API_KEY:-}
+      IRIS_CUSTOMER_ID: ${IRIS_CUSTOMER_ID:-1}
+      IRIS_CLASSIFICATION_ID: ${IRIS_CLASSIFICATION_ID:-1}
+      IRIS_SEVERITY_ID: ${IRIS_SEVERITY_ID:-4}
+      MISP_URL: ${MISP_URL:-}
+      MISP_API_KEY: ${MISP_API_KEY:-}
+      LAB_TOKEN: ${LAB_TOKEN:-}
+    volumes:
+      - ./:/app
+    command: ["python", "-m", "dfir_soc.webhook"]
+    ports:
+      - "127.0.0.1:8088:8088"
